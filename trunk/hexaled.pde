@@ -24,6 +24,7 @@ const int numsamples = 1 << samplebits;
  // interrupts and read by loop 
  byte lastPortB = 0;
  long sums[6] = {0};
+ int deltas[6] = {0};
  unsigned  newSamples[6] = {0}; 
  volatile byte flag = 0;
  // These are only read and written in loop
@@ -128,6 +129,7 @@ const int numsamples = 1 << samplebits;
         sums[i] -= samples[i][index];
         samples[i][index] = newSamples[i];
         average = sums[i] >> samplebits;
+        deltas[i] = samples[i][(index - 1) & (numSamples - 1)] - newSamples[i];
         //Serial.print(" average ");
         //Serial.println(average);
         
@@ -189,7 +191,8 @@ const int numsamples = 1 << samplebits;
       
   }
   
-  
+  Serial.print(millis());
+  Serial.print("ms: ");
   Serial.print(samplecount++);
   Serial.print(": ");
   for (byte i=0; i < 6; ++i)
@@ -198,6 +201,15 @@ const int numsamples = 1 << samplebits;
     Serial.print((int)i);
     Serial.print(" < ");
     Serial.print(sums[i] >> samplebits);
+  }
+  Serial.println("");
+  Serial.print("Deltas ");
+  for (byte i=0; i < 6; ++i)
+  {
+    if (i) Serial.print(" == ");
+    Serial.print((int)i);
+    Serial.print(" < ");
+    Serial.print(deltas[i]);
   }
   Serial.println("");
   
