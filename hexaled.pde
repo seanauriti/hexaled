@@ -18,7 +18,7 @@
 #endif
 
 const int samplebits = 2;
-const int numsamples = 1 << samplebits;
+const int numSamples = 1 << samplebits;
  // These variables have to be volatile
  // because they can be changed in the
  // interrupts and read by loop 
@@ -29,8 +29,8 @@ const int numsamples = 1 << samplebits;
  volatile byte flag = 0;
  // These are only read and written in loop
  byte outputStates;
- byte counts[6] = {numsamples,numsamples,numsamples,numsamples,numsamples,numsamples};
- unsigned  samples[6][numsamples] = {0};
+ byte counts[6] = {numSamples,numSamples,numSamples,numSamples,numSamples,numSamples};
+ unsigned  samples[6][numSamples] = {0};
  byte index = 0;
  int samplecount = 0;
  
@@ -146,15 +146,15 @@ const int numsamples = 1 << samplebits;
             Serial.print("Setting ");
             Serial.print((int)i);
             Serial.print(" to ");
-            Serial.print((outputStates & j) ? LOW : HIGH);
+            Serial.println((outputStates & j) ? LOW : HIGH);
            digitalWrite(output+i, (outputStates & j) ? LOW : HIGH);
            outputStates ^= j;
-           counts[i] = numsamples;
+           counts[i] = numSamples;
           }
         }
     }
    ++index;
-   index %= numsamples;
+   index %= numSamples;
   
   // all bits finished, stop the clock
   TCCR1B &=  ~(7 << CS10);
