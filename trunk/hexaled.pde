@@ -23,6 +23,7 @@ const int numSamples = 1 << samplebits;
  // because they can be changed in the
  // interrupts and read by loop 
  byte lastPortB = 0;
+ byte debug = 0;
  long sums[6] = {0};
  int deltas[6] = {0};
  unsigned  newSamples[6] = {0}; 
@@ -170,6 +171,9 @@ const int numSamples = 1 << samplebits;
     byte b = Serial.read();
     switch(b)
     {
+      case 'd':case 'D':    // debug
+        debug = !debug;
+        break;
       case 'n': case 'N':  // all lights on
         for (byte i=0; i < 6; ++i) digitalWrite(output+i, HIGH);
         outputStates = 0x3f;
@@ -177,6 +181,9 @@ const int numSamples = 1 << samplebits;
       case 'f': case 'F':  // all lights off
         for (byte i=0; i < 6; ++i) digitalWrite(output+i, LOW);
         outputStates = 0;
+        break;
+      case 'q': case 'Q':   // Query
+        Serial.println((int)outputStates);
         break;
       case '0':case '1':case '2':case '3':case '4':
       case '5':
@@ -191,27 +198,30 @@ const int numSamples = 1 << samplebits;
       
   }
   
-  Serial.print(millis());
-  Serial.print("ms: ");
-  Serial.print(samplecount++);
-  Serial.print(": ");
-  for (byte i=0; i < 6; ++i)
+  if (debug)
   {
-    if (i) Serial.print(" == ");
-    Serial.print((int)i);
-    Serial.print(" < ");
-    Serial.print(sums[i] >> samplebits);
+    Serial.print(millis());
+    Serial.print("ms: ");
+    Serial.print(samplecount++);
+    Serial.print(": ");
+    for (byte i=0; i < 6; ++i)
+    {
+        if (i) Serial.print(" == ");
+        Serial.print((int)i);
+        Serial.print(" < ");
+        Serial.print(sums[i] >> samplebits);
+    }
+    Serial.println("");
+    Serial.print("Deltas ");
+    for (byte i=0; i < 6; ++i)
+    {
+        if (i) Serial.print(" == ");
+        Serial.print((int)i);
+        Serial.print(" < ");
+        Serial.print(deltas[i]);
+    }
+    Serial.println("");
   }
-  Serial.println("");
-  Serial.print("Deltas ");
-  for (byte i=0; i < 6; ++i)
-  {
-    if (i) Serial.print(" == ");
-    Serial.print((int)i);
-    Serial.print(" < ");
-    Serial.print(deltas[i]);
-  }
-  Serial.println("");
   
   // then do it again
  }
