@@ -10,13 +10,13 @@
         if (x.status != 200) return;
 
         var ret = 0;
-        var newstate = x.responseXML.getElementsByTagName("decimal"));
+        var newstate = x.responseXML.getElementsByTagName("decimal");
         if (newstate.length == 0) return;
-        ret = newstate[0].innerHTML;
+        ret = newstate[0].firstChild.nodeValue;
 
         for (var i=0, j=1; i < 6; ++i, j <<= 1)
         {
-            document.forms[0].check[i].checked = ((ret & j) == j);
+            document.forms[0].check_[i].checked = ((ret & j) == j);
         }
     }
 
@@ -24,10 +24,11 @@
     {
         var x = new XMLHttpRequest();
         var url = "update.php";
-        x.onReadyStateChange = function() { do_update(x); };
+        x.onreadystatechange = function() { do_update(x); };
         if (cmd && cmd.length)
             url += "?cmd="+cmd;
         x.open("GET",url,true);
+        x.send(null);
     }
 
     function box_checked(box)
@@ -35,7 +36,7 @@
         update_state(box);
     }
 
-    window.setInterval("update_state()", 3000);
+    window.setInterval("update_state()", 10000);
 // -->
 </SCRIPT>
 </HEAD>
@@ -47,7 +48,7 @@
     for ($i=0, $j=1; $i < 6; ++$i, $j <<= 1)
     {
         print "<TR>\n";
-        print "<TD>$i</TD><TD><INPUT type='checkbox' name='check_' onchange='box_checked($i)'"
+        print "<TD>$i</TD><TD><INPUT type='checkbox' name='check_' onchange='box_checked($i)'";
         if ($currentstate & $j)
             print " checked='checked'";
         print " />";
