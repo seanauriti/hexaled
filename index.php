@@ -5,6 +5,7 @@
 <!--
     function do_update(x)
     {
+        // Simply ignore invalid updates
         if (x.readyState != 4) return;
         if (x.status != 200) return;
 
@@ -15,7 +16,7 @@
 
         for (var i=0, j=1; i < 6; ++i, j <<= 1)
         {
-            document.forms[0].check[i] = ((ret & j) == j);
+            document.forms[0].check[i].checked = ((ret & j) == j);
         }
     }
 
