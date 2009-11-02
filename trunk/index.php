@@ -36,7 +36,8 @@
         update_state(box);
     }
 
-    window.setInterval("update_state()", 10000);
+    update_state();
+    window.setInterval("update_state()", 3000);
 // -->
 </SCRIPT>
 </HEAD>
