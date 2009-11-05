@@ -1,3 +1,3 @@
 <?
-$SERIAL_PORT="/dev/arduino";
+$SERIAL_PORT="/dev/cu.usbserial-A9007LEV";
 ?>

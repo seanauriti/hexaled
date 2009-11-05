@@ -5,7 +5,8 @@
     include "config.php";
     $f = new phpSerial;
     $f->deviceSet($SERIAL_PORT);
-    $f->confBaudRate(115200);
+    $f->confBaudRate(19200);
+    $f->confFlowControl("none");
     $f->deviceOpen();
 
     # See if we got here from a form submission
