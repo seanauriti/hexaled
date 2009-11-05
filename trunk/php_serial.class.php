@@ -22,6 +22,7 @@ class phpSerial
 	var $_dState = SERIAL_DEVICE_NOTSET;
 	var $_buffer = "";
 	var $_os = "";
+    var $sttyf = "";
 
 	/**
 	 * This var says if buffer should be flushed by sendMessage (true) or manualy (false)
@@ -49,12 +50,12 @@ class phpSerial
 			if ($this->_exec("stty --version") === 0)
 			{
 				register_shutdown_function(array($this, "deviceClose"));
-                $sttyf = "stty -F ";
+                $this->sttyf = "stty -F ";
 			}
 			else if ($this->_exec("stty -a") === 0)
             {
 				register_shutdown_function(array($this, "deviceClose"));
-                $sttyf = "stty -f ";
+                $this->sttyf = "stty -f ";
             }
 			else
 			{
@@ -97,7 +98,7 @@ class phpSerial
 					$device = "/dev/ttyS" . ($matches[1] - 1);
 				}
 
-				if ($this->_exec($sttyf . $device) === 0)
+				if ($this->_exec($this->sttyf . $device) === 0)
 				{
 					$this->_device = $device;
 					$this->_dState = SERIAL_DEVICE_SET;
@@ -115,6 +116,7 @@ class phpSerial
 				}
 			}
 
+            print "sttyf $this->sttyf";
 			trigger_error("Specified serial port is not valid", E_USER_WARNING);
 			return false;
 		}
@@ -231,7 +233,7 @@ class phpSerial
 		{
 			if ($this->_os === "linux")
 			{
-				$ret = $this->_exec($sttyf . $this->_device . " " . (int) $rate, $out);
+				$ret = $this->_exec($this->sttyf . $this->_device . " " . (int) $rate, $out);
 			}
 			elseif ($this->_os === "windows")
 			{
@@ -276,7 +278,7 @@ class phpSerial
 
 		if ($this->_os === "linux")
 		{
-			$ret = $this->_exec($sttyf . $this->_device . " " . $args[$parity], $out);
+			$ret = $this->_exec($this->sttyf . $this->_device . " " . $args[$parity], $out);
 		}
 		else
 		{
@@ -312,7 +314,7 @@ class phpSerial
 
 		if ($this->_os === "linux")
 		{
-			$ret = $this->_exec($sttyf . $this->_device . " cs" . $int, $out);
+			$ret = $this->_exec($this->sttyf . $this->_device . " cs" . $int, $out);
 		}
 		else
 		{
@@ -351,7 +353,7 @@ class phpSerial
 
 		if ($this->_os === "linux")
 		{
-			$ret = $this->_exec($sttyf . $this->_device . " " . (($length == 1) ? "-" : "") . "cstopb", $out);
+			$ret = $this->_exec($this->sttyf . $this->_device . " " . (($length == 1) ? "-" : "") . "cstopb", $out);
 		}
 		else
 		{
@@ -401,7 +403,7 @@ class phpSerial
 		}
 
 		if ($this->_os === "linux")
-			$ret = $this->_exec($sttyf . $this->_device . " " . $linuxModes[$mode], $out);
+			$ret = $this->_exec($this->sttyf . $this->_device . " " . $linuxModes[$mode], $out);
 		else
 			$ret = $this->_exec("mode " . $this->_windevice . " " . $windowsModes[$mode], $out);
 
