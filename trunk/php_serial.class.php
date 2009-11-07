@@ -157,7 +157,7 @@ class phpSerial
 
 		if ($this->_dHandle !== false)
 		{
-			stream_set_blocking($this->_dHandle, 0);
+			stream_set_blocking($this->_dHandle, 1);
 			$this->_dState = SERIAL_DEVICE_OPENED;
 			return true;
 		}

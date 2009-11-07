@@ -16,6 +16,7 @@
     }
     $f->sendMessage("Q");
     $currentstate = $f->readPort();
+    print $currentstate;
 ?><status>
     <decimal><?= $currentstate ?></decimal>
 </status>

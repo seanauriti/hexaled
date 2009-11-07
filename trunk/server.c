@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "Usage: %s serial_port\n", argv[0]);
         exit(1);
     }
-    serial = open(argv[1], O_RDWR);
+    serial = open(argv[1], O_RDWR | O_NONBLOCK);
     if (serial == -1)
     {
         perror("Open serial port");
@@ -37,6 +37,11 @@ int main(int argc, char **argv)
         exit(1);
     }
     cfsetspeed(&tios, 19200);
+    tios.c_cflag &= ~(CSIZE | CSTOPB | PARENB 
+                        | CCTS_OFLOW | CRTS_IFLOW | CRTSCTS | MDMBUF);
+    tios.c_cflag |= CLOCAL | CS8 | CREAD;
+    tios.c_iflag &= ~(IXON | IXOFF);
+
     if (-1 == tcsetattr(serial, TCSANOW, &tios))
     {
         perror("tcsetattr");
@@ -48,6 +53,7 @@ int main(int argc, char **argv)
     if (s == -1)
     {
         perror("open socket");
+        close(serial);
         exit(1);
     }
 
