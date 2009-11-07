@@ -1,21 +1,21 @@
 <?php
     header('Content-type: text/xml');
 
-    include "php_serial.class.php";
     include "config.php";
-    $f = new phpSerial;
-    $f->deviceSet($SERIAL_PORT);
-    $f->confBaudRate(19200);
-    $f->confFlowControl("none");
-    $f->deviceOpen();
+    $f = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+    $rc = socket_connect($f, "127.0.0.1", 11111);
+    if ($rc === false) {
+        echo "socket_connect() failed.\nReason: ($rc) " . socket_strerror(socket_last_error($f)) . "\n";
+        exit(1);
+    }
 
     # See if we got here from a form submission
     if ($_REQUEST["cmd"])
     {
-        $f->sendMessage($_REQUEST["cmd"]);
+        socket_write($f, $_REQUEST["cmd"], strlen($_REQUEST["cmd"]));
     }
-    $f->sendMessage("Q");
-    $currentstate = $f->readPort();
+    socket_write($f, "Q", 1);
+    $currentstate = socket_read($f, 10);
     print $currentstate;
 ?><status>
     <decimal><?= $currentstate ?></decimal>
