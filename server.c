@@ -15,6 +15,7 @@ int main(int argc, char **argv)
     int cs;
     struct sockaddr_in addrin;
     socklen_t addrlen;
+    char linebuf[80];
 
     memset(&tios, 0, sizeof(tios));
     memset(&addrin, 0, sizeof(addrin));
@@ -37,8 +38,11 @@ int main(int argc, char **argv)
         exit(1);
     }
     cfsetspeed(&tios, 19200);
-    tios.c_cflag &= ~(CSIZE | CSTOPB | PARENB 
-                        | CCTS_OFLOW | CRTS_IFLOW | CRTSCTS | MDMBUF);
+    tios.c_cflag &= ~(CSIZE | CSTOPB | PARENB | CRTSCTS 
+#ifdef __MACH__
+                        | CCTS_OFLOW | CRTS_IFLOW | MDMBUF
+#endif
+		     );
     tios.c_cflag |= CLOCAL | CS8 | CREAD;
     tios.c_iflag &= ~(IXON | IXOFF);
 
@@ -49,6 +53,14 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    rc = write(serial, "Q", 1);
+    while (rc > 0)
+    {
+        rc = read(serial, linebuf, sizeof(linebuf));
+        linebuf[rc] = 0;
+        printf("discarded %s\n", linebuf);
+    }
+
     s=socket(AF_INET, SOCK_STREAM, 0);
     if (s == -1)
     {
@@ -57,7 +69,9 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+#ifdef __MACH__
     addrin.sin_len = sizeof(struct sockaddr_in);
+#endif
     addrin.sin_family = AF_INET;
     addrin.sin_port = htons(11111);
     rc = bind(s, (struct sockaddr *)&addrin, sizeof(addrin));
@@ -77,13 +91,13 @@ int main(int argc, char **argv)
         exit(1);
     }
     addrlen = sizeof(addrin);
-    while ((cs = accept(s, (struct sockaddr *)&addrin, &addrlen)) == -1)
+    while ((cs = accept(s, (struct sockaddr *)&addrin, &addrlen)) != -1)
     {
-        char cmdbuf[20], numbuf[20], reply[80];
+        char cmdbuf[20], numbuf[60], reply[80];
         static const char *fmt = 
             "<reply><decimal>%s</decimal></reply>";
         printf("Got connection from %s\n",
-            inet_ntoa(addrin));
+            (char *)inet_ntoa(addrin));
         /* read the command */
         rc = recv(cs, cmdbuf, sizeof(cmdbuf), 0);
         if (rc > 0)
@@ -95,7 +109,11 @@ int main(int argc, char **argv)
             rc = read(serial, numbuf, sizeof(numbuf));
             if (rc > 0)
             {
-                numbuf[rc] = 0;
+                numbuf[rc--] = 0;
+                while (rc >= 0 && (numbuf[rc] == '\r' || numbuf[rc] == '\n'))
+                {
+                    numbuf[rc--] = 0;
+                }
                 printf("read %s\n", numbuf);
                 rc = snprintf(reply, sizeof(reply), fmt, numbuf);
                 write(cs, reply, rc);
