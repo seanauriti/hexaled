@@ -10,13 +10,11 @@
     }
 
     # See if we got here from a form submission
-    if ($_REQUEST["cmd"])
+    if (strlen($_REQUEST["cmd"]) > 0)
     {
         socket_write($f, $_REQUEST["cmd"], strlen($_REQUEST["cmd"]));
     }
     socket_write($f, "Q", 1);
-    $currentstate = socket_read($f, 10);
-    print $currentstate;
-?><status>
-    <decimal><?= $currentstate ?></decimal>
-</status>
+    $currentstate = socket_read($f, 80);
+    
+?><?= $currentstate ?>
