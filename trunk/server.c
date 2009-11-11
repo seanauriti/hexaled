@@ -54,7 +54,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    rc = write(serial, "QQQ", 1);
     while (rc > 0)
     {
         rc = read(serial, linebuf, sizeof(linebuf));
@@ -124,6 +123,7 @@ int main(int argc, char **argv)
                 }
             }
             write(serial, "Q", 1);
+            usleep(1000000);
             write(serial, "Q", 1);
             while ((jj = read(serial, numbuf, sizeof(numbuf))) > 0) rc = jj;
             if (rc > 0)

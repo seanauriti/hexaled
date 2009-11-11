@@ -36,6 +36,8 @@
     function box_checked(box)
     {
         update_state(box);
+        document.forms[0].allon.checked = 0;
+        document.forms[0].alloff.checked = 0;
     }
 
     update_state();
@@ -48,17 +50,20 @@
 <input type="hidden" name="last_cmd"/>
 <TABLE border="0">
 <?php 
+    print "<TR>\n";
     for ($i=0, $j=1; $i < 6; ++$i, $j <<= 1)
     {
-        print "<TR>\n";
         print "<TD>$i</TD><TD><INPUT type='checkbox' name='check_' onchange='box_checked(\"$i\")'";
         if ($currentstate & $j)
             print " checked='checked'";
         print " />";
         print "</TD>\n";
-        print "</TR>\n";
     }
-?>
+    print "</TR>\n";
+?><TR>
+    <TD colspan=3>All On<input type='checkbox' id="allon" onchange='box_checked("N")'/></TD>
+    <TD colspan=3>All Off<input type='checkbox' id="alloff" onchange='box_checked("F")'/></TD>
+    </TR>
 </TABLE>
 </FORM>
 </BODY>

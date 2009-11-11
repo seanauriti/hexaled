@@ -16,5 +16,6 @@
     }
     socket_write($f, "Q", 1);
     $currentstate = socket_read($f, 80);
+    socket_close($f);
     
 ?><?= $currentstate ?>
