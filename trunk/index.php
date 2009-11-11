@@ -36,8 +36,6 @@
     function box_checked(box)
     {
         update_state(box);
-        document.forms[0].allon.checked = 0;
-        document.forms[0].alloff.checked = 0;
     }
 
     update_state();
@@ -61,8 +59,8 @@
     }
     print "</TR>\n";
 ?><TR>
-    <TD colspan=3>All On<input type='checkbox' id="allon" onchange='box_checked("N")'/></TD>
-    <TD colspan=3>All Off<input type='checkbox' id="alloff" onchange='box_checked("F")'/></TD>
+    <TD colspan=3><button id="allon" onclick='box_checked("N")'/>All On</button></TD>
+    <TD colspan=3><button id="alloff" onclick='box_checked("F")'/>All Off</button></TD>
     </TR>
 </TABLE>
 </FORM>
