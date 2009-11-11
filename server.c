@@ -13,6 +13,7 @@ int main(int argc, char **argv)
     struct termios tios;
     int rc;
     int cs;
+    struct linger linger;
     struct sockaddr_in addrin;
     socklen_t addrlen;
     char linebuf[80];
@@ -53,7 +54,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    rc = write(serial, "Q", 1);
+    rc = write(serial, "QQQ", 1);
     while (rc > 0)
     {
         rc = read(serial, linebuf, sizeof(linebuf));
@@ -66,6 +67,17 @@ int main(int argc, char **argv)
     {
         perror("open socket");
         close(serial);
+        exit(1);
+    }
+
+    linger.l_onoff = 0;
+    linger.l_linger = 0;
+    if (setsockopt(s, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger))
+        == -1)
+    {
+        perror("setsockopt");
+        close(serial);
+        close(s);
         exit(1);
     }
 
@@ -102,20 +114,39 @@ int main(int argc, char **argv)
         rc = recv(cs, cmdbuf, sizeof(cmdbuf), 0);
         if (rc > 0)
         {
-            cmdbuf[rc] = 0;
-            printf("command %s\n", cmdbuf);
-            write(serial, cmdbuf, rc);
+            int jj;
+            for (jj=0; jj < rc; ++jj)
+            {
+                if (tolower(cmdbuf[jj]) != 'q')
+                {
+                    printf("sending cmd %c\n", cmdbuf[jj]);
+                    write(serial, cmdbuf, rc);
+                }
+            }
             write(serial, "Q", 1);
-            rc = read(serial, numbuf, sizeof(numbuf));
+            write(serial, "Q", 1);
+            while ((jj = read(serial, numbuf, sizeof(numbuf))) > 0) rc = jj;
             if (rc > 0)
             {
+                int ii = 0, last_ii = 0;
+                for (jj=0; jj < rc; ++jj)
+                {
+                    if (numbuf[jj] == '\r' || numbuf[jj] == '\n')
+                    {
+                        while (jj < rc && 
+                            (numbuf[jj] == '\r' || numbuf[jj] == '\n'))
+                                ++jj;
+                        last_ii = ii;
+                        ii = jj;
+                    }
+                }
                 numbuf[rc--] = 0;
                 while (rc >= 0 && (numbuf[rc] == '\r' || numbuf[rc] == '\n'))
                 {
                     numbuf[rc--] = 0;
                 }
-                printf("read %s\n", numbuf);
-                rc = snprintf(reply, sizeof(reply), fmt, numbuf);
+                rc = snprintf(reply, sizeof(reply), fmt, &numbuf[last_ii]);
+                printf("sending reply %s\n", reply);
                 write(cs, reply, rc);
             }
         }

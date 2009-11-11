@@ -25,8 +25,10 @@
         var x = new XMLHttpRequest();
         var url = "update.php";
         x.onreadystatechange = function() { do_update(x); };
-        if (cmd && cmd.length)
+        if (typeof(cmd) != "undefined" && cmd.length)
+        {
             url += "?cmd="+cmd;
+        }
         x.open("GET",url,true);
         x.send(null);
     }
@@ -49,7 +51,7 @@
     for ($i=0, $j=1; $i < 6; ++$i, $j <<= 1)
     {
         print "<TR>\n";
-        print "<TD>$i</TD><TD><INPUT type='checkbox' name='check_' onchange='box_checked($i)'";
+        print "<TD>$i</TD><TD><INPUT type='checkbox' name='check_' onchange='box_checked(\"$i\")'";
         if ($currentstate & $j)
             print " checked='checked'";
         print " />";
